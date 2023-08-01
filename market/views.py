@@ -10,47 +10,49 @@ import json
 
 class MarketView(View):
     template = "market.html"
-    user_selected = UserModel.objects.first()
-    stocks_owned = StockOwnedModel.objects.first()
     iniciar_accion_periodica()
     #precio_maximo = PriceModel.objects.aggregate(max_valor=Max('price'))['max_valor'] # TODO Ojo a este metodo para sacar el mayor valor
 
     def get(self, request):
+        stocks_owned = StockOwnedModel.objects.first()
+        user_selected = UserModel.objects.first()
         stock = StockModel.objects.first()
 
         return TemplateResponse(request, self.template, {
-            "user_selected": self.user_selected,
+            "user_selected": user_selected,
             "stock": stock,
-            "owned": self.stocks_owned.number,
-            "buy_price": self.stocks_owned.buy_price,
+            "owned": stocks_owned.number,
+            "buy_price": stocks_owned.buy_price,
         })
 
     def post(self, request):
+        stocks_owned = StockOwnedModel.objects.first()
+        user_selected = UserModel.objects.first()
         action = request.GET.get("action")
         stock = StockModel.objects.first()
         if action == "buy":
             amount = request.POST.get("amount-buy")
-            self.stocks_owned.buy_price = (int(amount)*int(stock.last_price)\
-                                          +int(self.stocks_owned.number)*int(self.stocks_owned.buy_price))\
-                                          /(int(self.stocks_owned.number)+int(amount))
-            self.user_selected.money -= int(amount)*int(stock.last_price)
-            self.stocks_owned.number += int(amount)
+            stocks_owned.buy_price = (int(amount)*int(stock.last_price)\
+                                          +int(stocks_owned.number)*int(stocks_owned.buy_price))\
+                                          /(int(stocks_owned.number)+int(amount))
+            user_selected.money -= int(amount)*int(stock.last_price)
+            stocks_owned.number += int(amount)
 
         else:
             amount = request.POST.get("amount-sell")
-            self.user_selected.money += int(amount)*int(stock.last_price)
-            self.stocks_owned.number -= int(amount)
-            if self.stocks_owned.number == 0:
-                self.stocks_owned.buy_price = 0
+            user_selected.money += int(amount)*int(stock.last_price)
+            stocks_owned.number -= int(amount)
+            if stocks_owned.number == 0:
+                stocks_owned.buy_price = 0
 
-        self.user_selected.save()
-        self.stocks_owned.save()
+        user_selected.save()
+        stocks_owned.save()
 
         return TemplateResponse(request, self.template, {
-            "user_selected": self.user_selected,
+            "user_selected": user_selected,
             "stock": stock,
-            "owned": self.stocks_owned.number,
-            "buy_price": self.stocks_owned.buy_price,
+            "owned": stocks_owned.number,
+            "buy_price": stocks_owned.buy_price,
         })
 
 
@@ -81,12 +83,12 @@ class RestartView(View):
         stocks_owned.number = 0
         stocks_owned.buy_price = 0
         stocks_owned.save()
-        stock.price = 75
+        stock.last_price = 75
         stock.save()
 
         return redirect("market")
 
 # TODO lista de add shit
-# Velocidad de la accion (cambiar la frecuencia del thread)
+# Velocidad de la accion (cambiar la frecuencia del thread y de actualizacion)
 # Vista movil, que se actualice segun minimo y maximo del grafico
 # Ver mas, mas de 20 movimientos
