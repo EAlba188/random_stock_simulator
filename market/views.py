@@ -29,19 +29,29 @@ class MarketView(View):
         stocks_owned = StockOwnedModel.objects.first()
         user_selected = UserModel.objects.first()
         action = request.GET.get("action")
+        amount_buy = request.POST.get("amount-buy", None)
+        amount_sell = request.POST.get("amount-sell", None)
         stock = StockModel.objects.first()
-        if action == "buy":
-            amount = request.POST.get("amount-buy")
-            stocks_owned.buy_price = (int(amount)*int(stock.last_price)\
-                                          +int(stocks_owned.number)*int(stocks_owned.buy_price))\
-                                          /(int(stocks_owned.number)+int(amount))
-            user_selected.money -= int(amount)*int(stock.last_price)
-            stocks_owned.number += int(amount)
 
-        else:
-            amount = request.POST.get("amount-sell")
-            user_selected.money += int(amount)*int(stock.last_price)
-            stocks_owned.number -= int(amount)
+        if action == "buy-all":
+            action = "buy"
+            amount_buy = int(user_selected.money/stock.last_price)
+
+        if action == "sell-all":
+            if stocks_owned.number > 0:
+                action = "sell"
+                amount_sell = int(stocks_owned.number)
+
+        if action == "buy":
+            stocks_owned.buy_price = (int(amount_buy)*int(stock.last_price)\
+                                          +int(stocks_owned.number)*int(stocks_owned.buy_price))\
+                                          /(int(stocks_owned.number)+int(amount_buy))
+            user_selected.money -= int(amount_buy)*int(stock.last_price)
+            stocks_owned.number += int(amount_buy)
+
+        elif action == "sell":
+            user_selected.money += int(amount_sell)*int(stock.last_price)
+            stocks_owned.number -= int(amount_sell)
             if stocks_owned.number == 0:
                 stocks_owned.buy_price = 0
 
@@ -59,7 +69,7 @@ class MarketView(View):
 class LastPricesView(View):
 
     def get(self, request):
-        last_prices = PriceModel.objects.order_by("-created_at")[:20]
+        last_prices = PriceModel.objects.order_by("-created_at")[:30]
         last_prices_list = []
 
         for price in last_prices:
@@ -76,7 +86,7 @@ class RestartView(View):
         user_selected = UserModel.objects.first()
         stocks_owned = StockOwnedModel.objects.first()
         stock = StockModel.objects.first()
-        prices = PriceModel.objects.all().delete()
+        PriceModel.objects.all().delete()
 
         user_selected.money = 1000
         user_selected.save()

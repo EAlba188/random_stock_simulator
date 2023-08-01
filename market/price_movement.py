@@ -7,7 +7,7 @@ import random
 def accion_periodica():
     while True:
         stock = StockModel.objects.first()
-        movement = random.randint(-5, 5)
+        movement = random.randint(-10, 10)
         stock.last_price += movement
         stock.save()
         PriceModel.objects.create(price=stock.last_price, stock_related=stock)
