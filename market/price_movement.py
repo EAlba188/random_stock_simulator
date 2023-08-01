@@ -11,7 +11,7 @@ def accion_periodica():
         stock.last_price += movement
         stock.save()
         PriceModel.objects.create(price=stock.last_price, stock_related=stock)
-        time.sleep(0.2)
+        time.sleep(0.02)
 
 
 def iniciar_accion_periodica():

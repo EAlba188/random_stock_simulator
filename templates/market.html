@@ -27,7 +27,7 @@
 
 <script>
     // Datos iniciales para el gráfico (vacío en este ejemplo)
-    var labels = Array.from({length: 100}, (_, index) => index + 0);
+    var labels = Array.from({length: 500}, (_, index) => index + 0);
     var initialData = {
         labels: labels, // Agrega las etiquetas apropiadas si tu gráfico necesita
         datasets: [{
@@ -74,7 +74,7 @@
     }
 
     // Actualizar el gráfico cada medio segundo (500 ms)
-    setInterval(updateChart, 5);
+    setInterval(updateChart, 0.5);
 </script>
 
 
