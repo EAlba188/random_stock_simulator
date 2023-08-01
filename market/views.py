@@ -69,7 +69,7 @@ class MarketView(View):
 class LastPricesView(View):
 
     def get(self, request):
-        last_prices = PriceModel.objects.order_by("-created_at")[:30]
+        last_prices = PriceModel.objects.order_by("-created_at")[:100]
         last_prices_list = []
 
         for price in last_prices:
@@ -93,7 +93,7 @@ class RestartView(View):
         stocks_owned.number = 0
         stocks_owned.buy_price = 0
         stocks_owned.save()
-        stock.last_price = 75
+        stock.last_price = 150
         stock.save()
 
         return redirect("market")
