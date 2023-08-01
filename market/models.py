@@ -78,7 +78,8 @@ class UserModel(models.Model):
 
 
 class StockOwnedModel(models.Model):
-    number = models.IntegerField(max_length=500)
+    number = models.IntegerField(default=0)
+    buy_price = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(
         "created at",

@@ -21,6 +21,7 @@ class MarketView(View):
             "user_selected": self.user_selected,
             "stock": stock,
             "owned": self.stocks_owned.number,
+            "buy_price": self.stocks_owned.buy_price,
         })
 
     def post(self, request):
@@ -28,12 +29,18 @@ class MarketView(View):
         stock = StockModel.objects.first()
         if action == "buy":
             amount = request.POST.get("amount-buy")
+            self.stocks_owned.buy_price = (int(amount)*int(stock.last_price)\
+                                          +int(self.stocks_owned.number)*int(self.stocks_owned.buy_price))\
+                                          /(int(self.stocks_owned.number)+int(amount))
             self.user_selected.money -= int(amount)*int(stock.last_price)
             self.stocks_owned.number += int(amount)
+
         else:
             amount = request.POST.get("amount-sell")
             self.user_selected.money += int(amount)*int(stock.last_price)
             self.stocks_owned.number -= int(amount)
+            if self.stocks_owned.number == 0:
+                self.stocks_owned.buy_price = 0
 
         self.user_selected.save()
         self.stocks_owned.save()
@@ -42,6 +49,7 @@ class MarketView(View):
             "user_selected": self.user_selected,
             "stock": stock,
             "owned": self.stocks_owned.number,
+            "buy_price": self.stocks_owned.buy_price,
         })
 
 
