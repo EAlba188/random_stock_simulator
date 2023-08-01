@@ -34,6 +34,9 @@ class MarketView(View):
             self.user_selected.money += int(amount)*int(self.stock.last_price)
             self.stocks_owned.number -= int(amount)
 
+        self.user_selected.save()
+        self.stocks_owned.save()
+
         return TemplateResponse(request, self.template, {
             "user_selected": self.user_selected,
             "stock": self.stock,
