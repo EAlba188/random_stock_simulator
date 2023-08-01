@@ -12,6 +12,12 @@
 <h3>{{user_selected}}: {{user_selected.money}} $</h3>
 <h3>Stock amount: {{owned}} units at an average of {{buy_price}} $</h3>
 
+
+<form action="{% url 'restart' %}" method="get">
+  {% csrf_token %}
+    <input type="submit" value="Restart">
+</form>
+
 <!-- Incluye jQuery y Chart.js en tu plantilla HTML -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

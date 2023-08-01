@@ -3,6 +3,7 @@ from django.template.response import TemplateResponse
 from .models import UserModel, StockModel, PriceModel, StockOwnedModel
 from django.http import JsonResponse
 from django.db.models import Max
+from django.shortcuts import render, redirect
 from .price_movement import iniciar_accion_periodica
 import json
 
@@ -66,3 +67,26 @@ class LastPricesView(View):
         data["data"] = last_prices_list
 
         return JsonResponse(data)
+
+
+class RestartView(View):
+    def get(self, request):
+        user_selected = UserModel.objects.first()
+        stocks_owned = StockOwnedModel.objects.first()
+        stock = StockModel.objects.first()
+        prices = PriceModel.objects.all().delete()
+
+        user_selected.money = 1000
+        user_selected.save()
+        stocks_owned.number = 0
+        stocks_owned.buy_price = 0
+        stocks_owned.save()
+        stock.price = 75
+        stock.save()
+
+        return redirect("market")
+
+# TODO lista de add shit
+# Velocidad de la accion (cambiar la frecuencia del thread)
+# Vista movil, que se actualice segun minimo y maximo del grafico
+# Ver mas, mas de 20 movimientos
