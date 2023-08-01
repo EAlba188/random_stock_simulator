@@ -10,28 +10,29 @@ import json
 class MarketView(View):
     template = "market.html"
     user_selected = UserModel.objects.first()
-    stock = StockModel.objects.first()
     stocks_owned = StockOwnedModel.objects.first()
     iniciar_accion_periodica()
     #precio_maximo = PriceModel.objects.aggregate(max_valor=Max('price'))['max_valor'] # TODO Ojo a este metodo para sacar el mayor valor
 
     def get(self, request):
+        stock = StockModel.objects.first()
 
         return TemplateResponse(request, self.template, {
             "user_selected": self.user_selected,
-            "stock": self.stock,
+            "stock": stock,
             "owned": self.stocks_owned.number,
         })
 
     def post(self, request):
         action = request.GET.get("action")
+        stock = StockModel.objects.first()
         if action == "buy":
             amount = request.POST.get("amount-buy")
-            self.user_selected.money -= int(amount)*int(self.stock.last_price)
+            self.user_selected.money -= int(amount)*int(stock.last_price)
             self.stocks_owned.number += int(amount)
         else:
             amount = request.POST.get("amount-sell")
-            self.user_selected.money += int(amount)*int(self.stock.last_price)
+            self.user_selected.money += int(amount)*int(stock.last_price)
             self.stocks_owned.number -= int(amount)
 
         self.user_selected.save()
@@ -39,7 +40,7 @@ class MarketView(View):
 
         return TemplateResponse(request, self.template, {
             "user_selected": self.user_selected,
-            "stock": self.stock,
+            "stock": stock,
             "owned": self.stocks_owned.number,
         })
 
