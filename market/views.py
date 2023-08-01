@@ -1,6 +1,6 @@
 from django.views import View
 from django.template.response import TemplateResponse
-from .models import UserModel, StockModel, PriceModel
+from .models import UserModel, StockModel, PriceModel, StockOwnedModel
 from django.http import JsonResponse
 from django.db.models import Max
 from .price_movement import iniciar_accion_periodica
@@ -11,6 +11,7 @@ class MarketView(View):
     template = "market.html"
     user_selected = UserModel.objects.first()
     stock = StockModel.objects.first()
+    stocks_owned = StockOwnedModel.objects.first()
     iniciar_accion_periodica()
     #precio_maximo = PriceModel.objects.aggregate(max_valor=Max('price'))['max_valor'] # TODO Ojo a este metodo para sacar el mayor valor
 
@@ -19,18 +20,24 @@ class MarketView(View):
         return TemplateResponse(request, self.template, {
             "user_selected": self.user_selected,
             "stock": self.stock,
+            "owned": self.stocks_owned.number,
         })
 
     def post(self, request):
         action = request.GET.get("action")
         if action == "buy":
             amount = request.POST.get("amount-buy")
+            self.user_selected.money -= int(amount)*int(self.stock.last_price)
+            self.stocks_owned.number += int(amount)
         else:
             amount = request.POST.get("amount-sell")
+            self.user_selected.money += int(amount)*int(self.stock.last_price)
+            self.stocks_owned.number -= int(amount)
 
         return TemplateResponse(request, self.template, {
             "user_selected": self.user_selected,
             "stock": self.stock,
+            "owned": self.stocks_owned.number,
         })
 
 
