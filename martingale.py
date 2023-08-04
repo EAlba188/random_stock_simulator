@@ -15,12 +15,13 @@ min_money = 0
 
 
 def martingala():
-    global  min_money
+    global min_money
+    max_bet = 8
     bet_list = [1]
     money = 0
 
     while money < 1:
-        print(bet_list)
+        #print(bet_list)
         movimiento = random.randint(0, 1)
         apuesta = min(bet_list)
         indice = bet_list.index(apuesta)
@@ -33,7 +34,7 @@ def martingala():
             money -= apuesta
             bet_list[indice] *= 2
 
-            if bet_list[indice] == 16:
+            if bet_list[indice] == max_bet:
                 for i in range(int(bet_list[indice]/2)):
                     bet_list.append(2)
                 bet_list.pop(indice)
@@ -47,7 +48,7 @@ def martingala():
     return money
 
 
-for i in range(100000):
+while total_money < 10000:
     money = martingala()
     total_money += money
 
